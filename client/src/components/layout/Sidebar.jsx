@@ -20,7 +20,8 @@ import {
   Settings,
   ChevronRight,
   HelpCircle,
-  User
+  User,
+  Brain
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -41,7 +42,7 @@ export default function Sidebar() {
     return '/dashboard';
   };
 
-  // Flat nav items matching reference design exactly
+  // Nav items matching all platform capabilities
   const getNavItems = (userRole) => {
     switch (userRole) {
       case 'instructor':
@@ -69,10 +70,17 @@ export default function Sidebar() {
       default:
         return [
           { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { name: 'My Courses', path: '/my-courses', icon: BookOpen },
+          { name: 'Course Catalog', path: '/courses', icon: Compass },
           { name: 'My Notes', path: '/notes', icon: FileText },
-          { name: 'Quizzes', path: '/ai/quiz-generator', icon: HelpCircle },
-          { name: 'Progress', path: '/my-courses', icon: BarChart3 },
-          { name: 'Learn with AI', path: '/ai/tutor', icon: Sparkles },
+          { name: 'Flashcards', path: '/flashcards', icon: BrainCircuit },
+          { name: 'Bookmarks', path: '/bookmarks', icon: Bookmark },
+          { name: 'Certificates', path: '/certificates', icon: Award },
+          { name: 'AI Tutor', path: '/ai/tutor', icon: Sparkles },
+          { name: 'AI Learning Path', path: '/ai/learning-path', icon: Target },
+          { name: 'AI Quiz Generator', path: '/ai/quiz-generator', icon: HelpCircle },
+          { name: 'AI Career Advisor', path: '/ai/career', icon: Brain },
+          { name: 'AI Mock Interview', path: '/ai/interview', icon: MessageSquare },
           { name: 'Community', path: '/mentoring', icon: Users },
         ];
     }
@@ -80,7 +88,6 @@ export default function Sidebar() {
 
   const bottomItems = [
     { name: 'Profile', path: '/profile', icon: User },
-    { name: 'Settings', path: '/profile', icon: Settings },
   ];
 
   const mainNavItems = getNavItems(role);

@@ -19,9 +19,13 @@ export default function Register() {
     setLoading(true);
     setErrorInfo({ message: '', isAlreadyExists: false });
 
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || 'Learner';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    const nameParts = fullName.trim().split(/\s+/);
+    let firstName = nameParts[0] || 'Learner';
+    let lastName = nameParts.slice(1).join(' ').trim() || nameParts[0] || 'Learner';
+
+    if (firstName.length < 2) firstName = `${firstName}.`;
+    if (lastName.length < 2) lastName = `${lastName}.`;
+
     const username = email.split('@')[0] || `user_${Date.now()}`;
 
     try {
