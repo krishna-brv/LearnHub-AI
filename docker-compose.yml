@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: learnhub-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: learnhub_ai
+    volumes:
+      - mongo-data:/data/db
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: learnhub-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/learnhub_ai
+      JWT_SECRET: learnhub_jwt_super_secret_key_2026
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: learnhub_refresh_secret_key_2026
+      JWT_REFRESH_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:80
+      GROQ_PRIMARY_MODEL: llama-3.3-70b-versatile
+      GROQ_FAST_MODEL: llama-3.1-8b-instant
+    depends_on:
+      - mongo
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: learnhub-client
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
