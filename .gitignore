@@ -18,6 +18,7 @@ out/
 .env.production.local
 **/*.env
 **/*.env.*
+!**/.env.example
 
 # Logs & temp files
 npm-debug.log*

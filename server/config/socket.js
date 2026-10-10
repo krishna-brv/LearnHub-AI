@@ -2,6 +2,8 @@ const { Server } = require('socket.io');
 
 let io = null;
 
+const { isOriginAllowed } = require('./cors');
+
 /**
  * Initialize Socket.IO server
  * @param {Object} httpServer - Node HTTP server instance
@@ -9,10 +11,16 @@ let io = null;
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: (origin, callback) => {
+        if (isOriginAllowed(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error('Origin not allowed by Socket.IO CORS'));
+      },
       methods: ['GET', 'POST'],
       credentials: true
     },
+    transports: ['websocket', 'polling'],
     pingTimeout: 60000,
     pingInterval: 25000
   });

@@ -4,11 +4,12 @@ const { successResponse } = require('../utils/apiResponse');
 
 // Helper to set HTTP-only refresh token cookie
 const setRefreshTokenCookie = (res, token) => {
+  const isProduction = process.env.NODE_ENV === 'production';
   const cookieOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
   };
 
   res.cookie('refreshToken', token, cookieOptions);
@@ -16,9 +17,12 @@ const setRefreshTokenCookie = (res, token) => {
 
 // Helper to clear refresh token cookie
 const clearRefreshTokenCookie = (res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', '', {
     expires: new Date(0),
-    httpOnly: true
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
   });
 };
 

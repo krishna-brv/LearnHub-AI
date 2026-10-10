@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const rawBaseURL = import.meta.env.VITE_API_URL || '/api';
+const baseURL = rawBaseURL.trim().replace(/\/+$/, '');
+
 const axiosClient = axios.create({
-  baseURL: 'https://learnhub-ai-zw9q.onrender.com/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json'
   },
@@ -26,10 +29,14 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/login') ||
+      originalRequest?.url?.includes('/auth/register') ||
+      originalRequest?.url?.includes('/auth/refresh-token');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       try {
-        const refreshRes = await axios.post('/api/auth/refresh-token', {}, { withCredentials: true });
+        const refreshRes = await axios.post(`${baseURL}/auth/refresh-token`, {}, { withCredentials: true });
         const newToken = refreshRes.data?.data?.accessToken;
         if (newToken) {
           localStorage.setItem('accessToken', newToken);
@@ -39,7 +46,9 @@ axiosClient.interceptors.response.use(
       } catch (refreshErr) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+          window.location.href = '/login';
+        }
       }
     }
 

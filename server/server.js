@@ -16,7 +16,7 @@ const connectDB = require('./config/db');
 const { verifyEmailConnection } = require('./config/email');
 const { initSocket } = require('./config/socket');
 
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT, 10) || 5000;
 
 // Create HTTP Server
 const server = http.createServer(app);

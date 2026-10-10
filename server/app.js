@@ -64,17 +64,33 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 10. API Routes Mount Point Placeholder
-// Routes will be registered here as they are built in future phases
+const path = require('path');
+const fs = require('fs');
+
+// 10. API Routes Mount Point
 const routes = require('./routes');
 app.use('/api', routes);
 
-// 11. Handle Unhandled Routes (404)
+// 11. Serve Frontend Static Build (for full-stack MERN single-service hosting on Render/Railway)
+const clientDistPath = path.resolve(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath) && fs.existsSync(path.join(clientDistPath, 'index.html'))) {
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    // Let unhandled API routes continue to 404 handler
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    return res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
+// 12. Handle Unhandled Routes (404)
 app.all('*', (req, res, next) => {
   next(new AppError(`Cannot find ${req.originalUrl} on this server!`, 404));
 });
 
-// 12. Global Error Handling Middleware
+// 13. Global Error Handling Middleware
 app.use(errorHandler);
 
 module.exports = app;

@@ -1,0 +1,30 @@
+services:
+  # LearnHub AI — Production MERN Web Service (Zero-Docker Native Node.js)
+  - type: web
+    name: learnhub-ai
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_PRIMARY_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_FAST_MODEL
+        value: llama-3.1-8b-instant

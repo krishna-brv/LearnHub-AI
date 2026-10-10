@@ -43,28 +43,37 @@ All test accounts use the password: `password123`
 
 ---
 
-## 🚀 Quick Setup & Installation
+## 🚀 Quick Setup & Installation (No Docker Required)
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB Atlas or local MongoDB instance running on `mongodb://localhost:27017`
+- MongoDB Atlas or local MongoDB instance (`mongodb://localhost:27017`)
 
-### 1. Clone & Setup Server
-
-```bash
-cd learnhub-ai/server
-npm install
-node seeds/index.js   # Seed database with initial courses, quizzes, and users
-npm run dev           # Starts backend server on http://localhost:5000
-```
-
-### 2. Setup Client
+### 1. Install All Dependencies (Single Command)
 
 ```bash
-cd learnhub-ai/client
-npm install
-npm run dev           # Starts Vite frontend on http://localhost:5173
+npm run install:all
 ```
+
+### 2. Seed Initial Database
+
+```bash
+npm run seed
+```
+
+### 3. Start Development Mode (Client & Server Concurrently)
+
+```bash
+npm run dev
+```
+
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5000/api
+- **Health Check:** http://localhost:5000/api/health
+
+### 4. Production Deployment
+
+See the comprehensive [DEPLOYMENT.md](./DEPLOYMENT.md) guide for 1-click zero-error deployment instructions on **Render**, **Vercel**, and **MongoDB Atlas**.
 
 ---
 
