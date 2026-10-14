@@ -46,9 +46,11 @@ const errorHandler = (err, req, res, next) => {
   error.name = err.name;
   error.code = err.code;
 
-  // Log error for debugging in development
-  if (process.env.NODE_ENV === 'development') {
+  // Log error for debugging (only dump full stack traces for 500s or non-operational bugs)
+  if (err.statusCode >= 500 || (!err.isOperational && process.env.NODE_ENV === 'development')) {
     console.error('💥 ERROR DETAILS:', err);
+  } else if (process.env.NODE_ENV === 'development' && err.isOperational && err.statusCode !== 404) {
+    console.warn(`⚠️ [${err.statusCode}] ${err.message}`);
   }
 
   // Handle specific database and auth errors

@@ -72,8 +72,23 @@ const routes = require('./routes');
 app.use('/api', routes);
 
 // 11. Serve Frontend Static Build (for full-stack MERN single-service hosting on Render/Railway)
-const clientDistPath = path.resolve(__dirname, '../client/dist');
-if (fs.existsSync(clientDistPath) && fs.existsSync(path.join(clientDistPath, 'index.html'))) {
+const candidateDistPaths = [
+  path.resolve(__dirname, '../client/dist'),
+  path.resolve(__dirname, './client/dist'),
+  path.resolve(process.cwd(), 'client/dist'),
+  path.resolve(process.cwd(), 'dist')
+];
+
+let clientDistPath = null;
+for (const candidate of candidateDistPaths) {
+  if (fs.existsSync(candidate) && fs.existsSync(path.join(candidate, 'index.html'))) {
+    clientDistPath = candidate;
+    break;
+  }
+}
+
+if (clientDistPath) {
+  console.log(`🚀 [Static] Serving frontend static build from: ${clientDistPath}`);
   app.use(express.static(clientDistPath));
 
   app.get('*', (req, res, next) => {
@@ -83,7 +98,31 @@ if (fs.existsSync(clientDistPath) && fs.existsSync(path.join(clientDistPath, 'in
     }
     return res.sendFile(path.join(clientDistPath, 'index.html'));
   });
+} else {
+  console.warn('⚠️ [Static] Frontend static build not found. Operating in API-only mode.');
+
+  // Friendly landing page for GET / when operating in API-only mode
+  app.get('/', (req, res) => {
+    return successResponse(res, 'LearnHub AI API is healthy and operational.', {
+      status: 'online',
+      service: 'LearnHub AI Backend API',
+      health: '/api/health',
+      docs: '/api',
+      mode: 'api-only'
+    });
+  });
 }
+
+// Silence automatic browser favicon requests
+app.get('/favicon.ico', (req, res) => {
+  if (clientDistPath) {
+    const faviconIco = path.join(clientDistPath, 'favicon.ico');
+    const faviconSvg = path.join(clientDistPath, 'favicon.svg');
+    if (fs.existsSync(faviconIco)) return res.sendFile(faviconIco);
+    if (fs.existsSync(faviconSvg)) return res.sendFile(faviconSvg);
+  }
+  return res.status(204).end();
+});
 
 // 12. Handle Unhandled Routes (404)
 app.all('*', (req, res, next) => {

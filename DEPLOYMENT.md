@@ -139,3 +139,13 @@ Visit:
 5. **"ECONNREFUSED 127.0.0.1:27017"**:
    - **Cause:** Missing `MONGO_URI` in production.
    - **Fix:** `server/config/db.js` now validates `MONGO_URI` before connecting and outputs clear setup advice.
+6. **"AppError: Cannot find / on this server! (GET / 404)"**:
+   - **Cause:** On Render, `client/dist` static build was not compiled or not found. This occurs if:
+     - Render **Root Directory** was set to `server` instead of being left empty (root).
+     - Render **Build Command** was left as default `npm install` instead of `npm run build`.
+     - Vite was in `devDependencies` and omitted when `NODE_ENV=production`.
+   - **Fix:**
+     - In Render Web Service settings, set **Root Directory** to empty (blank).
+     - Set **Build Command** to `npm run build` and **Start Command** to `npm start`.
+     - Vite build packages are now in `dependencies` of `client/package.json` with `--include=dev` flags.
+     - `server/app.js` now auto-detects frontend builds across candidate directories, gracefully handles `GET /` with API status when in backend-only mode, and silences `/favicon.ico` 404 requests.
