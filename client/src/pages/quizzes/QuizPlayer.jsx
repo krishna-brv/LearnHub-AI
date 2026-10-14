@@ -147,6 +147,7 @@ export default function QuizPlayer() {
           if (loadedQuiz?.timeLimit > 0) {
             setTimeLeft(loadedQuiz.timeLimit * 60);
           }
+          setLoading(false);
           return;
         }
       }
@@ -172,6 +173,19 @@ export default function QuizPlayer() {
       }
       return { ...prev, [questionId]: [optionIndex] };
     });
+
+    // Auto-save answer to backend if active attempt exists
+    if (attempt?._id && questionId) {
+      const selectedOpts = isMulti
+        ? (answers[questionId]?.includes(optionIndex)
+            ? answers[questionId].filter((i) => i !== optionIndex)
+            : [...(answers[questionId] || []), optionIndex])
+        : [optionIndex];
+      axiosClient.post(`/attempts/${attempt._id}/answer`, {
+        questionId,
+        selectedOptions: selectedOpts
+      }).catch(() => {});
+    }
   };
 
   const handleSubmitQuiz = async () => {

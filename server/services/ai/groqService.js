@@ -5,8 +5,8 @@ const AppError = require('../../utils/AppError');
 class GroqService {
   constructor() {
     this.apiKey = process.env.GROQ_API_KEY;
-    this.primaryModel = process.env.GROQ_PRIMARY_MODEL || 'llama-3.3-70b-versatile';
-    this.fastModel = process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant';
+    this.primaryModel = process.env.GROQ_PRIMARY_MODEL || 'openai/gpt-oss-120b';
+    this.fastModel = process.env.GROQ_FAST_MODEL || 'openai/gpt-oss-20b';
 
     if (this.apiKey && this.apiKey !== 'gsk_placeholder_key') {
       this.groq = new Groq({ apiKey: this.apiKey });
@@ -32,11 +32,11 @@ class GroqService {
    */
   selectModel(tier = 'fast') {
     let model = tier === 'primary'
-      ? (process.env.GROQ_PRIMARY_MODEL || 'llama-3.3-70b-versatile')
-      : (process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant');
+      ? (process.env.GROQ_PRIMARY_MODEL || 'openai/gpt-oss-120b')
+      : (process.env.GROQ_FAST_MODEL || 'openai/gpt-oss-20b');
 
-    if (!model || model.includes('groq/compound')) {
-      model = tier === 'primary' ? 'llama-3.3-70b-versatile' : 'llama-3.1-8b-instant';
+    if (!model || model.includes('groq/compound') || model.includes('llama-3.')) {
+      model = tier === 'primary' ? 'openai/gpt-oss-120b' : 'openai/gpt-oss-20b';
     }
     return model;
   }
@@ -60,21 +60,33 @@ class GroqService {
           questions: [
             {
               text: 'What is the time complexity of accessing an element in an array by index?',
-              options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'],
-              correctOption: 0,
-              tip: 'Direct index access in arrays takes constant O(1) time.'
+              options: [
+                { text: 'O(1)', isCorrect: true, explanation: 'Direct index access takes O(1) time.' },
+                { text: 'O(n)', isCorrect: false, explanation: 'Linear search is O(n), not direct indexing.' },
+                { text: 'O(log n)', isCorrect: false, explanation: 'Binary search is O(log n).' },
+                { text: 'O(n²)', isCorrect: false, explanation: 'Quadratic time is incorrect.' }
+              ],
+              explanation: 'Direct index access in contiguous array memory takes constant O(1) time.'
             },
             {
               text: 'Which hook is used for managing side effects in React components?',
-              options: ['useState', 'useEffect', 'useContext', 'useReducer'],
-              correctOption: 1,
-              tip: 'useEffect runs side effects after component rendering.'
+              options: [
+                { text: 'useState', isCorrect: false, explanation: 'useState is for state management.' },
+                { text: 'useEffect', isCorrect: true, explanation: 'useEffect handles side effects.' },
+                { text: 'useContext', isCorrect: false, explanation: 'useContext consumes context.' },
+                { text: 'useReducer', isCorrect: false, explanation: 'useReducer is for complex state transitions.' }
+              ],
+              explanation: 'useEffect runs side effects after component rendering.'
             },
             {
               text: 'What does REST stand for in web API architecture?',
-              options: ['Representational State Transfer', 'Remote Execution State Tech', 'Response Transfer Protocol', 'Realtime Embedded State Token'],
-              correctOption: 0,
-              tip: 'REST is an architectural style for stateless, client-server web services.'
+              options: [
+                { text: 'Representational State Transfer', isCorrect: true, explanation: 'Standard REST definition.' },
+                { text: 'Remote Execution State Tech', isCorrect: false, explanation: 'Incorrect.' },
+                { text: 'Response Transfer Protocol', isCorrect: false, explanation: 'Incorrect.' },
+                { text: 'Realtime Embedded State Token', isCorrect: false, explanation: 'Incorrect.' }
+              ],
+              explanation: 'REST is an architectural style for stateless, client-server web services.'
             }
           ]
         });
@@ -162,68 +174,82 @@ class GroqService {
       };
     }
 
-    try {
-      const options = {
-        messages,
-        model,
-        temperature,
-        max_tokens: maxTokens
-      };
+    const fallbackModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b'];
+    const modelsToTry = [model, ...fallbackModels.filter((m) => m !== model)];
 
-      if (jsonMode) {
-        options.response_format = { type: 'json_object' };
-      }
+    let lastError = null;
 
-      const response = await client.chat.completions.create(options);
-      const latencyMs = Date.now() - startTime;
-      const content = response.choices[0]?.message?.content || '';
-      const usage = response.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+    for (const currentModel of modelsToTry) {
+      try {
+        const options = {
+          messages,
+          model: currentModel,
+          temperature,
+          max_tokens: maxTokens
+        };
 
-      // Async usage log
-      if (userId) {
-        AIUsageLog.create({
-          user: userId,
-          feature,
-          model,
-          inputTokens: usage.prompt_tokens,
-          outputTokens: usage.completion_tokens,
-          totalTokens: usage.total_tokens,
+        if (jsonMode) {
+          options.response_format = { type: 'json_object' };
+        }
+
+        const response = await client.chat.completions.create(options);
+        const latencyMs = Date.now() - startTime;
+        const content = response.choices[0]?.message?.content || '';
+        const usage = response.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+
+        // Async usage log
+        if (userId) {
+          AIUsageLog.create({
+            user: userId,
+            feature,
+            model: currentModel,
+            inputTokens: usage.prompt_tokens,
+            outputTokens: usage.completion_tokens,
+            totalTokens: usage.total_tokens,
+            latencyMs,
+            status: 'success',
+            promptVersion: process.env.AI_PROMPT_VERSION || 'v1.0'
+          }).catch((err) => console.warn('Usage log error:', err.message));
+        }
+
+        return {
+          content,
+          usage,
           latencyMs,
-          status: 'success',
-          promptVersion: process.env.AI_PROMPT_VERSION || 'v1.0'
-        }).catch((err) => console.warn('Usage log error:', err.message));
+          model: currentModel,
+          isFallback: false
+        };
+      } catch (error) {
+        lastError = error;
+        console.warn(`Groq request failed with model ${currentModel}: ${error.message}`);
+        // If not a model error (e.g. rate limit, bad request, auth error), don't try other models
+        if (!error.message?.includes('model') && !error.message?.includes('404')) {
+          break;
+        }
       }
-
-      return {
-        content,
-        usage,
-        latencyMs,
-        model,
-        isFallback: false
-      };
-    } catch (error) {
-      const latencyMs = Date.now() - startTime;
-      console.error(`💥 Groq API Error (${feature}):`, error.message);
-
-      if (userId) {
-        AIUsageLog.create({
-          user: userId,
-          feature,
-          model,
-          latencyMs,
-          status: 'error',
-          error: error.message
-        }).catch(() => {});
-      }
-
-      // Smart Fallback — Dynamic topic answers
-      return {
-        content: this.generateSmartFallback(messages, jsonMode),
-        isFallback: true,
-        error: error.message,
-        model
-      };
     }
+
+    const latencyMs = Date.now() - startTime;
+    console.error(`💥 Groq API Error (${feature}):`, lastError?.message);
+
+    if (userId) {
+      AIUsageLog.create({
+        user: userId,
+        feature,
+        model,
+        latencyMs,
+        status: 'error',
+        error: lastError?.message
+      }).catch(() => {});
+    }
+
+    // Smart Fallback — Dynamic topic answers
+    return {
+      content: this.generateSmartFallback(messages, jsonMode),
+      isFallback: true,
+      error: lastError?.message,
+      model
+    };
   }
 }
 

@@ -7,14 +7,15 @@ class QuizGeneratorService {
   /**
    * Generate AI Quiz Questions for a Quiz
    */
-  async generateQuestions({ userId, quizId, topic, difficulty = 'medium', count = 5, type = 'mcq' }) {
-    const { systemPrompt } = aiPromptService.getQuizGeneratorPrompt(topic, difficulty, count, type);
+  async generateQuestions({ userId, quizId, topic, difficulty = 'medium', count = 3, type = 'mcq' }) {
+    const targetCount = parseInt(count, 10) || 3;
+    const { systemPrompt } = aiPromptService.getQuizGeneratorPrompt(topic, difficulty, targetCount, type);
 
     const messages = [
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
-        content: `Generate ${count} ${difficulty} level questions on topic "${topic}" of type "${type}".`
+        content: `Generate ${targetCount} ${difficulty} level questions on topic "${topic}" of type "${type}".`
       }
     ];
 
@@ -50,10 +51,13 @@ class QuizGeneratorService {
       };
     }
 
+    const rawList = generatedData.questions || [];
+    const limitedQuestions = rawList.slice(0, targetCount);
+
     // Auto-import generated questions into quiz if quizId is provided
     let importedQuestions = [];
-    if (quizId && generatedData.questions && generatedData.questions.length > 0) {
-      const formattedForImport = generatedData.questions.map((q) => ({
+    if (quizId && limitedQuestions.length > 0) {
+      const formattedForImport = limitedQuestions.map((q) => ({
         ...q,
         isAIGenerated: true,
         aiPromptVersion: process.env.AI_PROMPT_VERSION || 'v1.0'
@@ -62,9 +66,11 @@ class QuizGeneratorService {
       importedQuestions = await questionService.bulkCreateQuestions(quizId, formattedForImport);
     }
 
+    const finalQuestions = (importedQuestions.length > 0 ? importedQuestions : limitedQuestions).slice(0, targetCount);
+
     return {
-      generatedCount: generatedData.questions ? generatedData.questions.length : 0,
-      questions: importedQuestions.length > 0 ? importedQuestions : generatedData.questions,
+      generatedCount: finalQuestions.length,
+      questions: finalQuestions,
       isFallback: result.isFallback
     };
   }

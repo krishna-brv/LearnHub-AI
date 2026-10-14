@@ -10,6 +10,7 @@ router.use(protect);
 // Student Attempt Engine Routes
 router.post('/start/quiz/:quizId', restrictTo('student'), attemptController.startAttempt);
 router.put('/:id/answer', restrictTo('student'), attemptController.saveAnswer);
+router.post('/:id/answer', restrictTo('student'), attemptController.saveAnswer);
 router.post('/:id/submit', restrictTo('student'), attemptController.submitAttempt);
 router.get('/history/quiz/:quizId', restrictTo('student'), attemptController.getStudentHistory);
 router.get('/:id', attemptController.getAttemptDetails);

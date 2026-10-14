@@ -76,7 +76,7 @@ const fallbackQuestionsMap = {
 export default function AIQuizGeneratorPage() {
   const [topic, setTopic] = useState('Data Structures & Algorithms');
   const [difficulty, setDifficulty] = useState('medium');
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(3);
   const [loading, setLoading] = useState(false);
 
   // Play Mode State: 'setup' | 'playing' | 'results'
@@ -103,6 +103,37 @@ export default function AIQuizGeneratorPage() {
     return () => clearInterval(timer);
   }, [mode]);
 
+  // Helper to normalize question options from various AI formats
+  const normalizeQuestions = (list) => {
+    return (list || []).map((q) => {
+      const options = (q.options || []).map((opt, idx) => {
+        if (typeof opt === 'string') {
+          const isCorrect = q.correctOption !== undefined
+            ? q.correctOption === idx
+            : (q.correctAnswer && (q.correctAnswer === opt || q.correctAnswer === String.fromCharCode(65 + idx)));
+          return { text: opt, isCorrect: Boolean(isCorrect) };
+        }
+        return {
+          text: opt.text || opt.option || opt.label || `Option ${String.fromCharCode(65 + idx)}`,
+          isCorrect: Boolean(opt.isCorrect || opt.correct || (q.correctOption === idx))
+        };
+      });
+
+      if (options.length > 0 && !options.some((o) => o.isCorrect)) {
+        if (q.correctOption !== undefined && options[q.correctOption]) {
+          options[q.correctOption].isCorrect = true;
+        } else {
+          options[0].isCorrect = true;
+        }
+      }
+
+      return {
+        ...q,
+        options
+      };
+    });
+  };
+
   const handleStartQuiz = async (e) => {
     if (e) e.preventDefault();
     if (!topic.trim()) {
@@ -115,14 +146,14 @@ export default function AIQuizGeneratorPage() {
       const res = await axiosClient.post('/ai/quiz-generator/generate', {
         topic,
         difficulty,
-        count: parseInt(count, 10)
+        count: 3
       });
       const fetchedQuestions = res.data?.data?.questions || [];
 
       if (fetchedQuestions.length > 0) {
-        setQuestions(fetchedQuestions);
+        setQuestions(normalizeQuestions(fetchedQuestions.slice(0, 3)));
       } else {
-        setQuestions(fallbackQuestionsMap.default.slice(0, count));
+        setQuestions(normalizeQuestions(fallbackQuestionsMap.default.slice(0, 3)));
       }
 
       setMode('playing');
@@ -132,7 +163,7 @@ export default function AIQuizGeneratorPage() {
       toast.success('Quiz generated! Let\'s test your knowledge!');
     } catch (err) {
       console.warn('Using local quiz questions fallback.');
-      setQuestions(fallbackQuestionsMap.default.slice(0, count));
+      setQuestions(normalizeQuestions(fallbackQuestionsMap.default.slice(0, 3)));
       setMode('playing');
       setCurrentIndex(0);
       setUserAnswers({});
@@ -260,15 +291,10 @@ export default function AIQuizGeneratorPage() {
 
                 <div>
                   <label className="block text-xs font-extrabold text-[#13201A] mb-1.5">Number of Questions</label>
-                  <select
-                    value={count}
-                    onChange={(e) => setCount(e.target.value)}
-                    className="w-full rounded-2xl border border-[#E2E5DF] bg-[#F8F7F0] p-3 text-xs font-semibold text-[#13201A] outline-none focus:bg-white focus:border-[#0B5D3B] transition"
-                  >
-                    <option value="3">3 Questions (Quick Sprint)</option>
-                    <option value="5">5 Questions (Standard)</option>
-                    <option value="10">10 Questions (Deep Assessment)</option>
-                  </select>
+                  <div className="w-full rounded-2xl border border-[#E2E5DF] bg-[#F8F7F0] p-3 text-xs font-bold text-[#13201A] flex items-center justify-between">
+                    <span>3 Questions (Quick Sprint)</span>
+                    <span className="badge-mint text-[10px] font-black uppercase">Fixed: 3</span>
+                  </div>
                 </div>
               </div>
 

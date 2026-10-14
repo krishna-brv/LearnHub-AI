@@ -159,7 +159,7 @@ class AttemptService {
   /**
    * Submit Attempt & Deterministic Server-Side Scoring Engine
    */
-  async submitAttempt(attemptId, studentId) {
+  async submitAttempt(attemptId, studentId, directAnswers = null) {
     const attempt = await QuizAttempt.findOne({ _id: attemptId, student: studentId });
     if (!attempt) {
       throw new AppError('Attempt record not found.', 404);
@@ -167,6 +167,27 @@ class AttemptService {
 
     if (attempt.status === 'submitted') {
       throw new AppError('This attempt has already been submitted.', 400);
+    }
+
+    // Merge answers if supplied directly with submission
+    if (Array.isArray(directAnswers) && directAnswers.length > 0) {
+      directAnswers.forEach((ans) => {
+        const qId = (ans.questionId || ans.question || '').toString();
+        if (!qId) return;
+        const existingIdx = attempt.answers.findIndex((a) => a.question && a.question.toString() === qId);
+        const ansEntry = {
+          question: qId,
+          selectedOptions: ans.selectedOptions || [],
+          textAnswer: ans.textAnswer || '',
+          codeAnswer: ans.codeAnswer || '',
+          answeredAt: new Date()
+        };
+        if (existingIdx >= 0) {
+          attempt.answers[existingIdx] = ansEntry;
+        } else {
+          attempt.answers.push(ansEntry);
+        }
+      });
     }
 
     const quiz = await Quiz.findById(attempt.quiz);

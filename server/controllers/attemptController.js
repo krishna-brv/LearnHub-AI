@@ -18,7 +18,7 @@ exports.saveAnswer = asyncHandler(async (req, res) => {
 });
 
 exports.submitAttempt = asyncHandler(async (req, res) => {
-  const result = await attemptService.submitAttempt(req.params.id, req.user._id);
+  const result = await attemptService.submitAttempt(req.params.id, req.user._id, req.body.answers);
   return successResponse(res, 'Quiz attempt submitted and evaluated successfully', result);
 });
 
