@@ -97,7 +97,7 @@ If you prefer hosting the React frontend on Vercel's global CDN and the Express 
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
 4. Add Environment Variable:
-   - `VITE_API_URL` = `https://learnhub-api.onrender.com/api` *(Your Render backend URL + `/api`)*
+   - `VITE_API_URL` = `https://learnhub-ai-1.onrender.com/api` *(or `VITE_BACKEND_URL=https://learnhub-ai-1.onrender.com`)*
 5. Click **Deploy**.
    *(SPA routing is pre-configured via `client/vercel.json` so page refreshes will work seamlessly).*
 
