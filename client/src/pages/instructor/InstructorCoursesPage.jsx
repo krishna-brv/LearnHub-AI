@@ -35,7 +35,6 @@ export default function InstructorCoursesPage() {
       setCourses(coursesRes.data?.data?.courses || []);
       const cats = categoriesRes.data?.data?.categories || [];
       setCategories(cats);
-      if (cats.length > 0) setCategory(cats[0]._id);
     } catch (err) {
       console.error(err);
       toast.error('Could not fetch instructor courses');
@@ -50,8 +49,8 @@ export default function InstructorCoursesPage() {
       toast.error('Course title must be at least 5 characters');
       return;
     }
-    if (!category) {
-      toast.error('Please select a course category. If no categories exist, an admin must add one first.');
+    if (!category.trim()) {
+      toast.error('Please enter a course category');
       return;
     }
     if (!description.trim() || description.trim().length < 20) {
@@ -62,7 +61,7 @@ export default function InstructorCoursesPage() {
     try {
       const res = await axiosClient.post('/courses', {
         title: title.trim(),
-        category,
+        category: category.trim(),
         level,
         description: description.trim(),
         thumbnail: thumbnail || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600',
@@ -72,6 +71,7 @@ export default function InstructorCoursesPage() {
       setCourses([res.data?.data?.course, ...courses]);
       setIsModalOpen(false);
       setTitle('');
+      setCategory('');
       setDescription('');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create course');
@@ -266,29 +266,21 @@ export default function InstructorCoursesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Category *</label>
-                  <select
+                  <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Course Category *</label>
+                  <input
+                    type="text"
+                    list="courses-category-suggestions"
+                    required
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 p-2.5 text-xs font-semibold"
-                    required
-                  >
-                    {categories.length === 0 ? (
-                      <option value="">No categories available</option>
-                    ) : (
-                      <>
-                        <option value="">Select Category</option>
-                        {categories.map((c) => (
-                          <option key={c._id} value={c._id}>{c.name}</option>
-                        ))}
-                      </>
-                    )}
-                  </select>
-                  {categories.length === 0 && (
-                    <p className="text-[11px] text-amber-700 mt-1">
-                      ⚠️ No categories found. Please run the seed script or create categories in Admin settings.
-                    </p>
-                  )}
+                    placeholder="e.g. Web Development, AI, MERN Stack"
+                    className="w-full rounded-xl border border-gray-300 p-2.5 text-xs font-semibold outline-none focus:border-primary-main"
+                  />
+                  <datalist id="courses-category-suggestions">
+                    {categories.map((c) => (
+                      <option key={c._id} value={c.name} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div>

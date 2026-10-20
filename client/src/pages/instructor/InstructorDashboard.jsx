@@ -33,9 +33,6 @@ export default function InstructorDashboard() {
       setAnalytics(analyticsRes.data?.data?.analytics);
       setCourses(coursesRes.data?.data?.courses || []);
       setCategories(categoriesRes.data?.data?.categories || []);
-      if (categoriesRes.data?.data?.categories?.length > 0) {
-        setCategory(categoriesRes.data.data.categories[0]._id);
-      }
     } catch (err) {
       console.error('Error fetching instructor data:', err);
     } finally {
@@ -49,8 +46,8 @@ export default function InstructorDashboard() {
       toast.error('Course title must be at least 5 characters');
       return;
     }
-    if (!category) {
-      toast.error('Please select a course category. If no categories exist, an admin must add one first.');
+    if (!category.trim()) {
+      toast.error('Please enter a course category');
       return;
     }
     if (!description.trim() || description.trim().length < 20) {
@@ -61,7 +58,7 @@ export default function InstructorDashboard() {
     try {
       const res = await axiosClient.post('/courses', {
         title: title.trim(),
-        category,
+        category: category.trim(),
         level,
         description: description.trim(),
         thumbnail: thumbnail || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600',
@@ -71,6 +68,7 @@ export default function InstructorDashboard() {
       setCourses([res.data?.data?.course, ...courses]);
       setIsModalOpen(false);
       setTitle('');
+      setCategory('');
       setDescription('');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create course');
@@ -267,29 +265,21 @@ export default function InstructorDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[#13201A] mb-1">Category *</label>
-                  <select
+                  <label className="block text-xs font-bold text-[#13201A] mb-1">Course Category *</label>
+                  <input
+                    type="text"
+                    list="dashboard-category-suggestions"
+                    required
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full rounded-xl border border-[#E2E5DF] bg-[#F8F7F0] p-2.5 text-xs outline-none"
-                    required
-                  >
-                    {categories.length === 0 ? (
-                      <option value="">No categories available</option>
-                    ) : (
-                      <>
-                        <option value="">Select Category</option>
-                        {categories.map((c) => (
-                          <option key={c._id} value={c._id}>{c.name}</option>
-                        ))}
-                      </>
-                    )}
-                  </select>
-                  {categories.length === 0 && (
-                    <p className="text-[11px] text-amber-700 mt-1">
-                      ⚠️ No categories found. Please run the seed script or create categories in Admin settings.
-                    </p>
-                  )}
+                    placeholder="e.g. Web Development, AI, MERN Stack"
+                    className="w-full rounded-xl border border-[#E2E5DF] bg-[#F8F7F0] p-2.5 text-xs outline-none focus:border-[#0B5D3B]"
+                  />
+                  <datalist id="dashboard-category-suggestions">
+                    {categories.map((c) => (
+                      <option key={c._id} value={c.name} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div>

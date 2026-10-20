@@ -7,6 +7,48 @@ const slugify = require('slugify');
 
 class CourseService {
   /**
+   * Resolve category by ID or name, auto-creating if it does not exist
+   */
+  async resolveOrCreateCategory(categoryInput) {
+    if (!categoryInput) {
+      throw new AppError('Category is required.', 400);
+    }
+
+    const trimmed = typeof categoryInput === 'string' ? categoryInput.trim() : String(categoryInput);
+
+    // If it's a valid 24-character hex MongoDB ObjectId, check if it already exists
+    const isId = Boolean(trimmed.match(/^[0-9a-fA-F]{24}$/));
+    if (isId) {
+      const existingById = await Category.findById(trimmed);
+      if (existingById) return existingById;
+    }
+
+    // Lookup by name (case-insensitive) or slug
+    const catSlug = slugify(trimmed, { lower: true, strict: true }) || 'general';
+    const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let category = await Category.findOne({
+      $or: [
+        { name: { $regex: new RegExp(`^${escaped}$`, 'i') } },
+        { slug: catSlug }
+      ]
+    });
+
+    if (!category) {
+      // Auto-create category on the fly so faculty is never blocked
+      category = await Category.create({
+        name: trimmed,
+        slug: catSlug,
+        description: `${trimmed} courses and modules`,
+        icon: 'BookOpen',
+        color: '#00A76F',
+        isActive: true
+      });
+    }
+
+    return category;
+  }
+
+  /**
    * Create new course (Instructor)
    */
   async createCourse(instructorId, courseData) {
@@ -26,11 +68,8 @@ class CourseService {
       estimatedDuration
     } = courseData;
 
-    // Verify category exists
-    const cat = await Category.findById(category);
-    if (!cat) {
-      throw new AppError('Category not found.', 404);
-    }
+    // Verify or auto-create category from faculty input
+    const cat = await this.resolveOrCreateCategory(category);
 
     // Generate unique slug
     let baseSlug = slugify(title, { lower: true, strict: true });
@@ -49,7 +88,7 @@ class CourseService {
       thumbnail,
       previewVideo,
       instructor: instructorId,
-      category,
+      category: cat._id,
       subcategory: subcategory || null,
       level: level || 'beginner',
       language: language || 'English',
@@ -61,7 +100,7 @@ class CourseService {
     });
 
     // Increment category course count
-    await Category.findByIdAndUpdate(category, { $inc: { courseCount: 1 } });
+    await Category.findByIdAndUpdate(cat._id, { $inc: { courseCount: 1 } });
 
     return course;
   }
@@ -242,6 +281,11 @@ class CourseService {
         counter++;
       }
       updateData.slug = slug;
+    }
+
+    if (updateData.category) {
+      const cat = await this.resolveOrCreateCategory(updateData.category);
+      updateData.category = cat._id;
     }
 
     updateData.lastUpdatedContent = new Date();

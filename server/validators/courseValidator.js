@@ -10,8 +10,9 @@ const createCourseValidator = [
     .notEmpty().withMessage('Course description is required')
     .isLength({ min: 20, max: 5000 }).withMessage('Description must be between 20 and 5000 characters'),
   body('category')
+    .trim()
     .notEmpty().withMessage('Category is required')
-    .isMongoId().withMessage('Category must be a valid MongoDB ObjectId'),
+    .isLength({ min: 2, max: 100 }).withMessage('Category must be between 2 and 100 characters'),
   body('level')
     .optional()
     .isIn(['beginner', 'intermediate', 'advanced', 'all_levels']).withMessage('Invalid level specified'),
