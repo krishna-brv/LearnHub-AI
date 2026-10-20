@@ -46,14 +46,25 @@ export default function InstructorCoursesPage() {
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim() || !category) return;
+    if (!title.trim() || title.trim().length < 5) {
+      toast.error('Course title must be at least 5 characters');
+      return;
+    }
+    if (!category) {
+      toast.error('Please select a course category. If no categories exist, an admin must add one first.');
+      return;
+    }
+    if (!description.trim() || description.trim().length < 20) {
+      toast.error(`Description must be at least 20 characters (currently ${description.trim().length})`);
+      return;
+    }
 
     try {
       const res = await axiosClient.post('/courses', {
-        title,
+        title: title.trim(),
         category,
         level,
-        description,
+        description: description.trim(),
         thumbnail: thumbnail || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600',
         learningObjectives: ['Master core concepts', 'Build real hands-on projects']
       });
@@ -260,11 +271,24 @@ export default function InstructorCoursesPage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full rounded-xl border border-gray-300 p-2.5 text-xs font-semibold"
+                    required
                   >
-                    {categories.map((c) => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
+                    {categories.length === 0 ? (
+                      <option value="">No categories available</option>
+                    ) : (
+                      <>
+                        <option value="">Select Category</option>
+                        {categories.map((c) => (
+                          <option key={c._id} value={c._id}>{c.name}</option>
+                        ))}
+                      </>
+                    )}
                   </select>
+                  {categories.length === 0 && (
+                    <p className="text-[11px] text-amber-700 mt-1">
+                      ⚠️ No categories found. Please run the seed script or create categories in Admin settings.
+                    </p>
+                  )}
                 </div>
 
                 <div>
