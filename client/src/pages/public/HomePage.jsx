@@ -155,6 +155,64 @@ export default function HomePage() {
     setActiveFaq(activeFaq === idx ? null : idx);
   };
 
+  const getCategoryName = (cat) => {
+    if (!cat) return 'General';
+    if (typeof cat === 'string') return cat;
+    if (typeof cat === 'object') return cat.name || cat.slug || 'General';
+    return 'General';
+  };
+
+  const getInstructorName = (inst) => {
+    if (!inst) return 'Verified Expert';
+    if (typeof inst === 'string') return inst;
+    if (inst.firstName || inst.lastName) {
+      return `${inst.firstName || ''} ${inst.lastName || ''}`.trim() || 'Verified Expert';
+    }
+    if (inst.name) return inst.name;
+    return 'Verified Expert';
+  };
+
+  const getInstructorAvatar = (inst) => {
+    if (!inst) return '/default-avatar.png';
+    if (typeof inst === 'object') {
+      return inst.profile?.avatar || inst.avatar || '/default-avatar.png';
+    }
+    return '/default-avatar.png';
+  };
+
+  const getThumbnailUrl = (thumb) => {
+    if (!thumb) return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80';
+    if (typeof thumb === 'string') return thumb;
+    if (typeof thumb === 'object' && thumb.url) return thumb.url;
+    return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80';
+  };
+
+  const getCourseRating = (c) => {
+    const r = c.averageRating ?? c.rating;
+    if (typeof r === 'number' && r > 0) return r.toFixed(1);
+    return '4.9';
+  };
+
+  const getCourseDuration = (c) => {
+    if (c.duration) return c.duration;
+    if (c.estimatedDuration) {
+      return typeof c.estimatedDuration === 'number' ? `${c.estimatedDuration} hrs` : String(c.estimatedDuration);
+    }
+    return '16 hrs';
+  };
+
+  const getLessonsCount = (c) => {
+    return c.lessonsCount || c.totalLessons || 24;
+  };
+
+  const getCourseLevel = (c) => {
+    if (!c.level) return 'All Levels';
+    if (typeof c.level === 'string') {
+      return c.level.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    }
+    return 'All Levels';
+  };
+
   const faqs = [
     {
       q: 'How does LearnHub AI personalize my learning journey?',
@@ -780,16 +838,16 @@ export default function HomePage() {
               {/* Course Thumbnail */}
               <div className="relative h-44 w-full bg-gray-100 overflow-hidden">
                 <img
-                  src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80'}
+                  src={getThumbnailUrl(course.thumbnail)}
                   alt={course.title}
                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-3 left-3 bg-[#13201A]/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black text-white">
-                  {course.category || 'General'}
+                  {getCategoryName(course.category)}
                 </div>
                 <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-extrabold text-[#0B5D3B] flex items-center gap-1">
                   <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                  <span>{course.rating || 4.9}</span>
+                  <span>{getCourseRating(course)}</span>
                 </div>
               </div>
 
@@ -802,14 +860,14 @@ export default function HomePage() {
                   <div className="flex items-center gap-3 text-[11px] font-semibold text-[#66736C]">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
-                      <span>{course.duration || '16 hrs'}</span>
+                      <span>{getCourseDuration(course)}</span>
                     </span>
                     <span className="flex items-center gap-1">
                       <Layers className="h-3.5 w-3.5" />
-                      <span>{course.lessonsCount || 30} lessons</span>
+                      <span>{getLessonsCount(course)} lessons</span>
                     </span>
                     <span className="bg-[#DDF1E5] text-[#0B5D3B] px-2 py-0.5 rounded text-[10px] font-bold">
-                      {course.level || 'All Levels'}
+                      {getCourseLevel(course)}
                     </span>
                   </div>
                 </div>
@@ -817,12 +875,12 @@ export default function HomePage() {
                 <div className="pt-3 border-t border-[#E2E5DF] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <img
-                      src={course.instructor?.avatar || '/default-avatar.png'}
+                      src={getInstructorAvatar(course.instructor)}
                       alt="Instructor"
                       className="h-7 w-7 rounded-full object-cover border border-[#CFE5D5]"
                     />
                     <span className="text-xs font-bold text-[#13201A] truncate max-w-[120px]">
-                      {course.instructor?.name || 'Verified Expert'}
+                      {getInstructorName(course.instructor)}
                     </span>
                   </div>
 
