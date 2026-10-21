@@ -251,7 +251,6 @@ export default function HomePage() {
             <a href="#how-it-works" className="hover:text-[#0B5D3B] transition-colors">How It Works</a>
             <a href="#courses" className="hover:text-[#0B5D3B] transition-colors">Curriculum</a>
             <a href="#comparison" className="hover:text-[#0B5D3B] transition-colors">Why LearnHub</a>
-            <a href="#testimonials" className="hover:text-[#0B5D3B] transition-colors">Reviews</a>
             <a href="#faq" className="hover:text-[#0B5D3B] transition-colors">FAQs</a>
           </nav>
 
@@ -291,7 +290,6 @@ export default function HomePage() {
               <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-[#0B5D3B]">How It Works</a>
               <a href="#courses" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-[#0B5D3B]">Curriculum</a>
               <a href="#comparison" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-[#0B5D3B]">Why LearnHub</a>
-              <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-[#0B5D3B]">Reviews</a>
               <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-[#0B5D3B]">FAQs</a>
             </div>
             <div className="flex flex-col gap-2 pt-2 border-t border-[#E2E5DF]">
@@ -361,26 +359,19 @@ export default function HomePage() {
                   </Link>
                 </div>
 
-                {/* Social Proof Avatar Strip */}
-                <div className="pt-4 flex flex-wrap items-center gap-4 border-t border-[#E2E5DF]">
-                  <div className="flex -space-x-2.5 overflow-hidden">
-                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#DDF1E5] text-[10px] font-black text-[#0B5D3B] ring-2 ring-white">
-                      +10K
-                    </div>
+                {/* Genuine Platform Highlights */}
+                <div className="pt-4 flex flex-wrap items-center gap-5 text-xs font-bold text-[#48554E] border-t border-[#E2E5DF]">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-[#0B5D3B]" />
+                    <span>Free to get started</span>
                   </div>
-
-                  <div className="text-xs">
-                    <div className="flex items-center gap-1 text-amber-500">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                      ))}
-                      <span className="font-extrabold text-[#13201A] ml-1">4.9/5</span>
-                    </div>
-                    <p className="text-[11px] font-semibold text-[#66736C]">Trusted by 10,000+ ambitious learners</p>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-[#0B5D3B]" />
+                    <span>Private note analysis</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-[#0B5D3B]" />
+                    <span>Instant quiz generator</span>
                   </div>
                 </div>
               </div>
@@ -632,26 +623,47 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Metrics Banner Strip */}
-      <section className="bg-white border-y border-[#E2E5DF] py-10 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="space-y-1">
-            <p className="text-3xl sm:text-4xl font-black text-[#0B5D3B] tracking-tight">10K+</p>
-            <p className="text-xs font-bold text-[#66736C] uppercase tracking-wider">Active Students</p>
+      {/* Core Platform Capabilities Strip */}
+      <section className="bg-white border-y border-[#E2E5DF] py-7 px-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#DDF1E5] text-[#0B5D3B] flex items-center justify-center font-bold shrink-0">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-black text-[#13201A]">Note Synthesizer</p>
+              <p className="text-[10px] font-semibold text-[#66736C]">Instant summaries & flashcards</p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-3xl sm:text-4xl font-black text-[#13201A] tracking-tight">150K+</p>
-            <p className="text-xs font-bold text-[#66736C] uppercase tracking-wider">Quizzes Generated</p>
+
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#FFE4D2] text-[#FF6B1A] flex items-center justify-center font-bold shrink-0">
+              <HelpCircle className="h-5 w-5" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-black text-[#13201A]">Adaptive Quizzes</p>
+              <p className="text-[10px] font-semibold text-[#66736C]">Targeted weak-spot practice</p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-3xl sm:text-4xl font-black text-[#0B5D3B] tracking-tight">98.4%</p>
-            <p className="text-xs font-bold text-[#66736C] uppercase tracking-wider">Concept Mastery</p>
+
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#E9E3FF] text-[#5B44CE] flex items-center justify-center font-bold shrink-0">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-black text-[#13201A]">24/7 Socratic Tutor</p>
+              <p className="text-[10px] font-semibold text-[#66736C]">Step-by-step concept guidance</p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-3xl sm:text-4xl font-black text-amber-500 tracking-tight flex items-center justify-center gap-1">
-              4.9 <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
-            </p>
-            <p className="text-xs font-bold text-[#66736C] uppercase tracking-wider">Student Satisfaction</p>
+
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#E0F2FE] text-[#0369A1] flex items-center justify-center font-bold shrink-0">
+              <Award className="h-5 w-5" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-black text-[#13201A]">Verified Badges</p>
+              <p className="text-[10px] font-semibold text-[#66736C]">Sharable public credentials</p>
+            </div>
           </div>
         </div>
       </section>
@@ -976,79 +988,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto space-y-2 mb-14">
-          <span className="text-xs font-black uppercase text-[#0B5D3B]">Student Stories</span>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#13201A]">Loved by Over 10,000 Learners</h2>
-          <p className="text-xs sm:text-sm text-[#66736C] font-semibold">
-            See how LearnHub AI is helping students ace exams and break into high-growth tech careers.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card-paper p-8 bg-white border border-[#E2E5DF] rounded-3xl space-y-4 flex flex-col justify-between shadow-soft">
-            <div className="space-y-3">
-              <div className="flex text-amber-400 gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-[#48554E] font-medium leading-relaxed italic">
-                "The adaptive quiz generator is pure magic. I uploaded my operating systems lecture slides, and in 30 seconds I had custom exam-level practice questions. I scored top of my class!"
-              </p>
-            </div>
-            <div className="flex items-center gap-3 pt-4 border-t border-[#E2E5DF]">
-              <img className="h-10 w-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Student" />
-              <div>
-                <h4 className="text-xs font-black text-[#13201A]">Maya Lin</h4>
-                <p className="text-[11px] font-semibold text-[#66736C]">CS Undergrad @ UC Berkeley</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-paper p-8 bg-white border border-[#E2E5DF] rounded-3xl space-y-4 flex flex-col justify-between shadow-soft">
-            <div className="space-y-3">
-              <div className="flex text-amber-400 gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-[#48554E] font-medium leading-relaxed italic">
-                "The AI Mock Interviewer helped me prepare for behavioral and system design loops. Getting instant feedback on my communication structure gave me huge confidence. Landed my first SWE role!"
-              </p>
-            </div>
-            <div className="flex items-center gap-3 pt-4 border-t border-[#E2E5DF]">
-              <img className="h-10 w-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Student" />
-              <div>
-                <h4 className="text-xs font-black text-[#13201A]">Devon Ward</h4>
-                <p className="text-[11px] font-semibold text-[#66736C]">Associate Engineer @ Stripe</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-paper p-8 bg-white border border-[#E2E5DF] rounded-3xl space-y-4 flex flex-col justify-between shadow-soft">
-            <div className="space-y-3">
-              <div className="flex text-amber-400 gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-[#48554E] font-medium leading-relaxed italic">
-                "As a career changer, having an AI Tutor that doesn't judge my beginner questions and explains difficult data structures with relatable analogies has been completely transformative."
-              </p>
-            </div>
-            <div className="flex items-center gap-3 pt-4 border-t border-[#E2E5DF]">
-              <img className="h-10 w-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80" alt="Student" />
-              <div>
-                <h4 className="text-xs font-black text-[#13201A]">Sofia Morales</h4>
-                <p className="text-[11px] font-semibold text-[#66736C]">Data Analyst @ Fintech</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Frequently Asked Questions */}
       <section id="faq" className="py-20 px-4 sm:px-6 bg-white border-t border-[#E2E5DF]">
         <div className="max-w-3xl mx-auto space-y-10">
@@ -1094,7 +1033,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto text-center space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-black text-emerald-200 border border-white/20 backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>JOIN OVER 10,000 LEARNERS WORLDWIDE</span>
+            <span>SUPERCHARGE YOUR LEARNING WITH AI</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
